@@ -1,0 +1,63 @@
+<%	
+	import org.exoplatform.web.application.JavascriptManager;
+	import org.exoplatform.portal.webui.util.Util;
+	import org.exoplatform.portal.webui.workspace.UIPortalApplication;
+	import org.exoplatform.portal.webui.page.UIPage;
+	import org.exoplatform.portal.mop.user.UserNavigation;
+
+	def rcontext = _ctx.getRequestContext();
+	 
+	JavascriptManager jsmanager = rcontext.getJavascriptManager();
+	jsmanager.importJavascript('eXo.portal.UIPortalNavigation');
+	jsmanager.importJavascript('eXo.portal.UIAdminToolbar');
+	jsmanager.addCustomizedOnLoadScript('eXo.portal.UIAdminToolbar.onLoad("' + uicomponent.id + '");');
+	
+	String addPageLabel = _ctx.appRes("UIAdminToolbarPortlet.action.AddPage");	
+	String editPageLabel = _ctx.appRes("UIAdminToolbarPortlet.action.EditPage");
+	String editPortalLabel = _ctx.appRes("UIAdminToolbarPortlet.action.EditPortal");
+	String editPageAndNaviLabel = _ctx.appRes("UIAdminToolbarPortlet.action.EditPageAndNavigation");
+	String editSiteLayout = _ctx.appRes("UIAdminToolbarPortlet.action.EditSiteLayout");
+	String editorLabel = _ctx.appRes("UIAdminToolbarPortlet.action.Editor");
+	
+	boolean userCouldEditNavigation = uicomponent.hasEditPermissionOnNavigation();
+	boolean userCouldEditPage = uicomponent.hasEditPermissionOnPage();
+	boolean userCouldEditPortal = uicomponent.hasEditPermissionOnPortal();
+	
+	UserNavigation selectedNav = uicomponent.getSelectedNavigation();
+	if (selectedNav != null) {
+		editorLabel = _ctx.appRes("UIAdminToolbarPortlet.action." + selectedNav.getKey().getTypeName() + ".Editor");
+	}
+	String accountSetting = "javascript:if(document.getElementById('UIMaskWorkspace')) ajaxGet(eXo.env.server.createPortalURL('UIPortal', 'AccountSettings', true));"
+%>
+<div class="UIAdminToolbarPortlet" id="$uicomponent.id" >
+	<div class="UIHorizontalTabs">
+		<div class="TabsContainer" >
+			<div class="UITab NormalToolbarTab portlet-menu-item">
+				<div class="">
+					<a class="EditorIcon TBIcon" href="#">$editorLabel</a>
+				</div>
+				<div class="MenuItemContainer portlet-menu-cascade" style="display:none;">
+					<div class="SubBlock">
+						<% if(userCouldEditNavigation){ %>
+							<div class="MenuItem portlet-menu-cascade-item">	
+								<a href="javascript:ajaxGet(eXo.env.server.createPortalURL('UIWorkingWorkspace', 'PageCreationWizard', true))" title="" class="ItemIcon AddPageIcon">$addPageLabel</a>
+							</div>
+						<% } %>
+						
+						<% if(userCouldEditPage){ %>
+							<div class="MenuItem portlet-menu-cascade-item">
+								<a href="javascript:ajaxGet(eXo.env.server.createPortalURL('UIWorkingWorkspace', 'EditCurrentPage', true))" title="" class="ItemIcon EditPageIcon">$editPageLabel</a>
+							</div>
+						<% } %>
+						
+						<% if(userCouldEditPortal){ %>
+							<div class="MenuItem portlet-menu-cascade-item">	
+								<a href="javascript:ajaxGet(eXo.env.server.createPortalURL('UIWorkingWorkspace', 'EditInline', true))" title="" class="ItemIcon EditSiteIcon">$editSiteLayout</a>
+							</div>
+						<% } %>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>

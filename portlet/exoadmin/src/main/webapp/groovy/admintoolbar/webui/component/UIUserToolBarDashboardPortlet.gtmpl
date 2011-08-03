@@ -1,0 +1,132 @@
+<%
+	import org.exoplatform.web.application.JavascriptManager;
+	import org.exoplatform.portal.webui.util.Util ;
+	import org.exoplatform.portal.mop.user.UserNode;
+	import java.util.Collection;
+	import javax.portlet.MimeResponse;
+	import javax.portlet.ResourceURL;
+	
+	def rcontext = _ctx.getRequestContext() ;
+	JavascriptManager jsmanager = rcontext.getJavascriptManager();
+	jsmanager.importJavascript('eXo.portal.UIPortalNavigation');
+	jsmanager.importJavascript('eXo.portal.UIAdminToolbar');
+	jsmanager.addCustomizedOnLoadScript('eXo.portal.UIAdminToolbar.onLoad("' + uicomponent.id + '");');
+
+	def portalURI = Util.getPortalRequestContext().getPortalURI();
+	void renderDashboards(Collection nodes) {
+		String clazz = "";
+		
+		print """
+			<div style="display:none" class="MenuItemContainer">
+				<div class="SubBlock">
+		""";
+					int idx = 0;
+					for(UserNode node : nodes) {
+						renderPageNode(node, idx++ % 2 == 0);
+					}
+		print """
+				</div>
+			</div>
+		""" ;
+	}
+	
+	void renderPageNode(UserNode node, boolean flag) {
+		UserNode selectedNode = uicomponent.getSelectedNode();
+		String tabStyleNavigation = "";
+		if(selectedNode != null && node.getURI() == selectedNode.getURI()) {
+				tabStyleNavigation = "SelectedItem";
+		}
+		
+		boolean hasChild = (node.getChildrenCount() > 0);
+		String clazz = "";
+		if(hasChild) clazz = "ArrowIcon";
+		String	href = Util.getPortalRequestContext().getPortalURI() + node.getURI();
+		String icon = node.getIcon();
+		if(icon == null) icon = "DefaultPageIcon";
+		def resolvedLabel = node.getLabel();
+		if ("Tab_Default".equals(node.getName()))
+		{
+				resolvedLabel = _ctx.appRes("UIUserToolBarDashboard.page." + node.getLabel());
+		}
+	
+		boolean toolong = (resolvedLabel.length() > 60);
+		String label = ( toolong ? resolvedLabel.substring(0, 57) + "..." : resolvedLabel);
+		String title = "";
+		if(toolong) title = "title='$resolvedLabel'";
+		else title = "";
+		
+		def getNodeURL = "";
+		if (hasChild) {
+			MimeResponse res = _ctx.getRequestContext().getResponse();
+			ResourceURL resourceURL = res.createResourceURL();
+			resourceURL.setResourceID(res.encodeURL(node.getURI()));	
+			getNodeURL = "exo:getNodeURL='" + resourceURL.toString() + "'";
+		}
+		
+		print """
+			<div class="MenuItem $tabStyleNavigation" $getNodeURL>
+				<div class="$clazz">
+		""";
+						if(node.pageRef != null) {
+								print """<a class="ItemIcon $icon" href="$href" $title>$label</a>""";
+						} else {
+								print """<a class="ItemIcon $icon" href="#" $title>$label</a>""";
+						}
+		print """
+				</div>
+		""" ;
+		if(hasChild) {
+			print """
+				<div class="MenuItemContainer">			
+					<div class="SubBlock">
+			""" ;
+					int idx = 0;
+					for(UserNode child : node.getChildren()) {
+						renderPageNode(child, idx++ % 2 == 0);
+					}
+			print """
+					</div>
+				</div>
+			""" ;
+			
+		}
+		print """
+			</div>
+		""" ;			
+	}	
+%>
+
+<%
+	def userNodes = uicomponent.getNavigationNodes(uicomponent.getCurrentUserNavigation());
+	String defaultDashboardPage;				
+	if(userNodes.size() < 1) {
+		defaultDashboardPage = org.exoplatform.toolbar.webui.component.UIUserToolBarDashboardPortlet.DEFAULT_TAB_NAME;
+%>
+	<div class="UIUserToolBarDashboardPortlet" id="$uicomponent.id">	
+		<div class="UIHorizontalTabs">
+			<div class="TabsContainer">
+				<div class="UITab NormalToolbarTab">
+					<div class="">
+						<a class="DashboardIcon TBIcon" href="<%= uicomponent.url("AddDefaultDashboard", defaultDashboardPage); %>">Dashboard</a>
+					</div>
+				</div>
+			</div>
+		</div>	
+	</div>	
+<% 
+	}else{
+		defaultDashboardPage =userNodes.iterator().next().getName();
+%>
+	<div class="UIUserToolBarDashboardPortlet" id="$uicomponent.id" >	
+		<div class="UIHorizontalTabs">
+			<div class="TabsContainer" >
+				<div class="UITab NormalToolbarTab">
+						<div class="">
+								<a class="DashboardIcon TBIcon" href="<%= portalURI + defaultDashboardPage %>">Dashboard</a>
+						</div>
+						<% renderDashboards(userNodes); %>
+				</div>
+			</div>
+		</div>	
+	</div>		
+<% } %>

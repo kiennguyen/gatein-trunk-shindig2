@@ -1,0 +1,34 @@
+<%	
+	import java.util.List;
+	import org.exoplatform.webui.organization.OrganizationUtils;
+	import org.exoplatform.portal.mop.SiteKey;
+	
+	def parent = uicomponent.getParent();
+	def navigations = uicomponent.getBeans();
+%>
+
+<div id="$uicomponent.id" class="FeedBox">
+	<% 
+	boolean isEvenRow = true;
+	SiteKey siteKey;
+	for(navigation in navigations) {
+			siteKey = navigation.getKey();
+			deleteLink = parent.event("DeleteNavigation",String.valueOf(siteKey.getName()));
+			editProperties = parent.event("EditProperties",String.valueOf(siteKey.getName()));
+			editLink = parent.event("EditNavigation",String.valueOf(siteKey.getName()));%>
+  <table class="ManagementBlock <%=isEvenRow ? "EvenRow":"OddRow"%>" style="table-layout: fixed">
+	  <tr>
+		  <td class="Image"><img src="/exoadmin/skin/navigation/webui/component/background/GroupImage.png" alt="" /></td>
+   		<td class="Content">
+   			<div class="Label" title="$siteKey.name"><%= OrganizationUtils.getGroupLabel(siteKey.getName()) %></div>
+   			<div><%=_ctx.appRes("UIGroupNavigationManagement.Label.Description")%>: <%= OrganizationUtils.getGroupDescription(siteKey.getName()) %></div>
+   		</td>	
+     	<td class="ActionBlock">
+     		<a href="<%=editLink%>" class="EditNavIcon"><%=_ctx.appRes("UIGroupNavigationManagement.Label.EditNavigation")%></a> 
+     		<a href="<%=editProperties%>" class="EditProIcon"><%=_ctx.appRes("UIGroupNavigationManagement.Label.EditProperties")%></a> 
+     		<a href="<%=deleteLink%>" class="DeleteIcon"><%=_ctx.appRes("UIGroupNavigationManagement.Label.DeleteNavigation")%></a>
+	  	</td>	
+    </tr>								
+  </table>  
+	<% isEvenRow = !isEvenRow;} %>    
+</div>
