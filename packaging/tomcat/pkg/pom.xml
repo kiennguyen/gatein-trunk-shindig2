@@ -395,6 +395,14 @@
        <groupId>org.gatein.shindig</groupId>
        <artifactId>shindig-social-api</artifactId>
     </dependency>
+    <dependency>
+       <groupId>org.apache.httpcomponents</groupId>
+       <artifactId>httpclient</artifactId>
+    </dependency>
+    <dependency>
+       <groupId>org.apache.httpcomponents</groupId>
+       <artifactId>httpcore</artifactId>
+    </dependency>
 
     <!-- GateIn -->
     <dependency>
@@ -552,6 +560,10 @@
     <dependency>
       <groupId>com.google.inject.extensions</groupId>
       <artifactId>guice-jmx</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>com.google.inject.extensions</groupId>
+      <artifactId>guice-multibindings</artifactId>
     </dependency>
     <dependency>
       <groupId>antlr</groupId>
@@ -734,8 +746,8 @@
       <artifactId>xstream</artifactId>
     </dependency>
     <dependency>
-      <groupId>net.oauth</groupId>
-      <artifactId>core</artifactId>
+      <groupId>net.oauth.core</groupId>
+      <artifactId>oauth</artifactId>
     </dependency>
     <dependency>
       <groupId>org.apache.tika</groupId>

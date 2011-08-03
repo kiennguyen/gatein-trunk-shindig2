@@ -25,6 +25,7 @@ import org.exoplatform.application.gadget.GadgetRegistryService;
 import org.exoplatform.container.ExoContainer;
 import org.exoplatform.container.ExoContainerContext;
 import org.exoplatform.portal.webui.application.GadgetUtil;
+import org.exoplatform.portal.webui.application.UIGadget;
 import org.exoplatform.web.application.ApplicationMessage;
 import org.exoplatform.webui.application.WebuiRequestContext;
 import org.exoplatform.webui.application.portlet.PortletRequestContext;
@@ -34,6 +35,7 @@ import org.exoplatform.webui.core.UIPortletApplication;
 import org.exoplatform.webui.core.lifecycle.UIApplicationLifecycle;
 import org.gatein.common.logging.Logger;
 import org.gatein.common.logging.LoggerFactory;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -107,19 +109,18 @@ public class UIGadgetPortlet extends UIPortletApplication
    
    public String getMetadata(String url)
    {
-      String metadata_ = GadgetUtil.fetchGagdetMetadata(url);
+      JSONObject metadata_ = null;
       try
       {
-         JSONObject jsonObj = new JSONObject(metadata_);
-         JSONObject obj = jsonObj.getJSONArray("gadgets").getJSONObject(0);
+         String strMetadata = GadgetUtil.fetchGagdetRpcMetadata(url);
+         metadata_ = new JSONArray(strMetadata).getJSONObject(0).getJSONObject(UIGadget.RPC_RESULT).getJSONObject(url);
          String token = GadgetUtil.createToken(url, new Long(hashCode()));
-         obj.put("secureToken", token);
-         metadata_ = jsonObj.toString();
+         metadata_.put("secureToken", token);
       }
       catch (JSONException e)
       {
          e.printStackTrace(); //To change body of catch statement use File | Settings | File Templates.
       }
-      return metadata_;
+      return metadata_.toString();
    }
 }
